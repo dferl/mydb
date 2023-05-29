@@ -1,32 +1,21 @@
 /* pager.h */
 
-#define MYDB_PAGE_SIZE 4096
-#define MYDB_CACHE_MAX_PAGES 1000
+typedef unsigned int page_type;
+typedef unsigned int count_type;
+typedef short section_type;
 
-extern void mypager_open(const char* filename, const int TREE_ORDER);
-extern struct page* mypager_get_page(int page_num, int level, bool new_page);
-extern struct page* mypager_get_page_for_traverse(int page_num, int* index);
-extern int mypager_get_unused_page_num(); 
-extern void mypager_flush_cache_operation ();
-extern void mypager_flush_free_cache();
-extern void mypager_free_page (int i);
-extern void mypager_close();
-extern void mypager_mark_asToBeFlushed ();
-extern short mypager_get_pageSize ();
-
-struct page {
-  int inPage_i;
-  void* page_ptr;
-};
-
-struct pager {
-  int file_descriptor;
-  int file_length;
-  int num_pages;
-  int num_pages_in_file;
-  int page_num[MYDB_CACHE_MAX_PAGES];
-  struct page* pages[MYDB_CACHE_MAX_PAGES];
-};
-
-extern struct pager * g_pager;
+extern int mypager_open(const char* filename, const int TREE_ORDER, bool readOnly);
+extern void mypager_close(int table_id);
+extern struct page* mypager_get_page(int table_id, page_type page_num, int level, bool new_page, int* cache_index);
+extern void* mypager_get_page_no_caching(int table_id, page_type page_num, int* index);
+extern struct page* mypager_get_page_for_traverse(page_type page_num, int* index);
+extern page_type mypager_get_unused_page_num(int table_id); 
+extern void mypager_flush_cache_operation (int table_id);
+extern void mypager_flush_free_cache(int table_id);
+extern void mypager_free_page (int table_id, int i);
+extern void mypager_mark_asToBeFlushed (int table_id, int cache_index);
+extern int mypager_get_pageSize ();
+extern count_type mypager_get_num_pages(int table_id);
+extern void mypager_open_only_read_no_cache(const char* filename);
+extern void mypager_close_only_read_no_cache();
 
